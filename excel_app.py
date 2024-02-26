@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 import openpyxl
 
+options_list = ["Programming", "Management", "Marketing", "Data analysis", "Computer graphics", "Web design", "Accounting", "International trade", "Employment law"]
+
 def load_data():
     path = "C:\\Users\\weron\\Desktop\\projekty\\Tkinter Excel App\\people.xlsx"
     workbook = openpyxl.load_workbook(path)
@@ -13,6 +15,32 @@ def load_data():
         treeview.heading(col_name, text = col_name)
     for value_tuple in list_values[1:]:
         treeview.insert('', tk.END, values = value_tuple)
+
+def insert_row():
+    name = name_entry.get()
+    age = int(age_spinbox.get())
+    interests = interests_combobox.get()
+    employment_status = "Employed" if status.get() else "Unemployed"
+    print(name, age, interests, employment_status)
+
+    # insert row into Excel sheet
+    path = "C:\\Users\\weron\\Desktop\\projekty\\Tkinter Excel App\\people.xlsx"
+    workbook = openpyxl.load_workbook(path)
+    sheet = workbook.active
+    row_values = [name, age, interests, employment_status]
+    sheet.append(row_values)
+    workbook.save(path)
+
+    # insert row into treeview
+    treeview.insert('', tk.END, values = row_values)
+
+    # clear values
+    name_entry.delete(0, "end")
+    name_entry.insert(0, 'Name')
+    age_spinbox.delete(0, "end")
+    age_spinbox.insert(0, "Age")
+    interests_combobox.set(options_list[0])
+    employed_checkbutton.state(["!selected"])
 
 def toggle_mode():
     if mode_switch.instate(["selected"]):       # selected - press on it once
@@ -44,17 +72,15 @@ age_spinbox.insert(0, "Age")
 age_spinbox.bind("<FocusIn>", lambda e: age_spinbox.delete('0', 'end'))
 age_spinbox.grid(row = 1, column = 0, padx = 5, pady = 5, sticky = "ew")
 
-interests_combobox = ttk.Combobox(widgets_frame, values = ["Programming", "Management", "Marketing",
-                                                           "Data analysis", "Computer graphics", "Web design",
-                                                           "Accounting", "International trade", "Employment law"])
+interests_combobox = ttk.Combobox(widgets_frame, values = options_list)
 interests_combobox.current(0)
 interests_combobox.grid(row = 2, column = 0, padx = 5, pady = 5, sticky = "ew")
 
-a = tk.BooleanVar()
-employed_checkbutton = ttk.Checkbutton(widgets_frame, text = "Employed", variable = a)
+status = tk.BooleanVar()
+employed_checkbutton = ttk.Checkbutton(widgets_frame, text = "Employed", variable = status)
 employed_checkbutton.grid(row = 3, column = 0, padx = 5, pady = 5, sticky = "w")
 
-button = ttk.Button(widgets_frame, text = "Insert")
+button = ttk.Button(widgets_frame, text = "Insert", command = insert_row)
 button.grid(row = 4, column = 0, sticky = "news")
 
 separator = ttk.Separator(widgets_frame)
